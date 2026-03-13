@@ -5,17 +5,20 @@ A Google Analytics CLI designed for AI agents. Wraps the GA4 Admin and Data APIs
 ## Installation
 
 ```bash
-python -m venv .venv
-source .venv/bin/activate
-pip install -e .
+npm install -g google-analytics-cli
 ```
 
-Or with [uv](https://github.com/astral-sh/uv):
+Or run directly with npx:
 
 ```bash
-uv venv .venv
-source .venv/bin/activate
-uv pip install -e .
+npx google-analytics-cli --help
+```
+
+For development:
+
+```bash
+pnpm install
+pnpm build
 ```
 
 ## Authentication
@@ -29,7 +32,13 @@ gcloud auth application-default login \
 
 ## Usage
 
-All commands output JSON by default. Use `--format jsonl` for newline-delimited JSON.
+All commands output JSON by default. Use `--format jsonl` for compact JSON.
+
+You can pass a property ID as an argument, via `--property`, or set the `GA_PROPERTY_ID` environment variable.
+
+```bash
+export GA_PROPERTY_ID=123456789
+```
 
 ### accounts
 
@@ -80,22 +89,22 @@ Run a GA4 report with dimensions, metrics, and date ranges.
 google-analytics-cli report 123456789 \
   --dimensions "date,country" \
   --metrics "activeUsers,sessions" \
-  --date-ranges '[{"start_date": "30daysAgo", "end_date": "yesterday"}]'
+  --date-ranges '[{"startDate": "30daysAgo", "endDate": "yesterday"}]'
 
 # With filters and ordering
 google-analytics-cli report 123456789 \
   --dimensions "eventName" \
   --metrics "eventCount" \
-  --date-ranges '[{"start_date": "7daysAgo", "end_date": "today"}]' \
-  --dimension-filter '{"filter": {"field_name": "eventName", "string_filter": {"match_type": "BEGINS_WITH", "value": "page"}}}' \
-  --order-by '[{"metric": {"metric_name": "eventCount"}, "desc": true}]' \
+  --date-ranges '[{"startDate": "7daysAgo", "endDate": "today"}]' \
+  --dimension-filter '{"filter": {"fieldName": "eventName", "stringFilter": {"matchType": "BEGINS_WITH", "value": "page"}}}' \
+  --order-by '[{"metric": {"metricName": "eventCount"}, "desc": true}]' \
   --limit 10
 
 # With currency and quota info
 google-analytics-cli report 123456789 \
   --dimensions "date" \
   --metrics "totalRevenue" \
-  --date-ranges '[{"start_date": "2024-01-01", "end_date": "2024-01-31"}]' \
+  --date-ranges '[{"startDate": "2024-01-01", "endDate": "2024-01-31"}]' \
   --currency-code USD \
   --return-property-quota
 ```
@@ -113,7 +122,7 @@ google-analytics-cli realtime 123456789 \
 google-analytics-cli realtime 123456789 \
   --dimensions "unifiedScreenName" \
   --metrics "activeUsers" \
-  --order-by '[{"metric": {"metric_name": "activeUsers"}, "desc": true}]' \
+  --order-by '[{"metric": {"metricName": "activeUsers"}, "desc": true}]' \
   --limit 5
 ```
 
