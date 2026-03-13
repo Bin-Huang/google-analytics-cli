@@ -23,7 +23,21 @@ pnpm build
 
 ## Authentication
 
-The CLI uses Google Application Default Credentials (ADC) with read-only Analytics scope.
+The CLI uses [Google Application Default Credentials (ADC)](https://cloud.google.com/docs/authentication/application-default-credentials) with read-only Analytics scope. Two methods are supported:
+
+### Option A: Service Account (recommended for automation)
+
+1. In the [Google Cloud Console](https://console.cloud.google.com/iam-admin/serviceaccounts), create a Service Account in a project with the Google Analytics Data API and Admin API enabled.
+2. Create a JSON key for the Service Account and download it.
+3. Set the `GOOGLE_APPLICATION_CREDENTIALS` environment variable to the path of the JSON key file:
+
+```bash
+export GOOGLE_APPLICATION_CREDENTIALS="/path/to/service-account-key.json"
+```
+
+4. In [Google Analytics Admin](https://analytics.google.com/analytics/web/#/a/p/admin), go to **Property Access Management** and add the Service Account email (e.g. `name@project.iam.gserviceaccount.com`) as a **Viewer**.
+
+### Option B: gcloud ADC (for local development)
 
 ```bash
 gcloud auth application-default login \
