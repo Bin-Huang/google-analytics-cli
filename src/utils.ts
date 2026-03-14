@@ -13,11 +13,23 @@ export function resolvePropertyId(cmd: Command): string {
 
 export function outputJson(data: unknown, format: string): void {
   const indent = format === "json" ? 2 : undefined;
-  process.stdout.write(JSON.stringify(data, null, indent) + "\n");
+  process.stdout.write(JSON.stringify(data ?? null, null, indent) + "\n");
 }
 
-export function errorJson(message: string): never {
-  process.stderr.write(JSON.stringify({ error: message }) + "\n");
+interface ApiError extends Error {
+  code?: number | string;
+  details?: string;
+  statusDetails?: unknown;
+}
+
+export function errorJson(message: string, err?: unknown): never {
+  const output: Record<string, unknown> = { error: message };
+  if (err && typeof err === "object") {
+    const apiErr = err as ApiError;
+    if (apiErr.code != null) output.code = apiErr.code;
+    if (apiErr.details) output.details = apiErr.details;
+  }
+  process.stderr.write(JSON.stringify(output) + "\n");
   process.exit(1);
 }
 
@@ -30,6 +42,6 @@ export async function run(
     outputJson(data, format);
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : String(err);
-    errorJson(message);
+    errorJson(message, err);
   }
 }

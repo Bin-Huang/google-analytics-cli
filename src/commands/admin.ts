@@ -2,6 +2,14 @@ import { Command } from "commander";
 import { createAdminAlphaClient, createAdminClient } from "../auth.js";
 import { resolvePropertyId, run } from "../utils.js";
 
+async function collectAsync<T>(iterable: AsyncIterable<T>): Promise<T[]> {
+  const items: T[] = [];
+  for await (const item of iterable) {
+    items.push(item);
+  }
+  return items;
+}
+
 export function registerAdminCommands(program: Command): void {
   program
     .command("accounts")
@@ -10,8 +18,7 @@ export function registerAdminCommands(program: Command): void {
       const format = cmd.optsWithGlobals().format;
       await run(async () => {
         const client = createAdminClient();
-        const [summaries] = await client.listAccountSummaries();
-        return summaries;
+        return collectAsync(client.listAccountSummariesAsync());
       }, format);
     });
 
@@ -36,22 +43,21 @@ export function registerAdminCommands(program: Command): void {
       const parent = resolvePropertyId(cmd);
       await run(async () => {
         const client = createAdminClient();
-        const [links] = await client.listGoogleAdsLinks({ parent });
-        return links;
+        return collectAsync(client.listGoogleAdsLinksAsync({ parent }));
       }, format);
     });
 
   program
     .command("annotations [property_id]")
-    .description("List annotations for a property")
+    .description("List annotations for a property (alpha API)")
     .action(async (_propertyId, _opts, cmd: Command) => {
       const format = cmd.optsWithGlobals().format;
       const parent = resolvePropertyId(cmd);
       await run(async () => {
         const client = createAdminAlphaClient();
-        const [annotations] =
-          await client.listReportingDataAnnotations({ parent });
-        return annotations;
+        return collectAsync(
+          client.listReportingDataAnnotationsAsync({ parent }),
+        );
       }, format);
     });
 }

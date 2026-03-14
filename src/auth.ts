@@ -1,12 +1,16 @@
 import { v1alpha, v1beta } from "@google-analytics/admin";
 import { BetaAnalyticsDataClient } from "@google-analytics/data";
+import { createRequire } from "node:module";
 
-const USER_AGENT = "google-analytics-cli/1.0.0";
+const require = createRequire(import.meta.url);
+const { version } = require("../package.json") as { version: string };
 
 const clientOptions = {
-  "x-goog-api-client": USER_AGENT,
-  scopes: ["https://www.googleapis.com/auth/analytics.readonly"],
+  libName: "google-analytics-cli",
+  libVersion: version,
 };
+
+export { version };
 
 export function createAdminClient(): InstanceType<
   typeof v1beta.AnalyticsAdminServiceClient

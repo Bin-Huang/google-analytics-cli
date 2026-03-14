@@ -46,9 +46,9 @@ gcloud auth application-default login \
 
 ## Usage
 
-All commands output JSON by default. Use `--format jsonl` for compact JSON.
+All commands output pretty-printed JSON by default. Use `--format compact` for compact single-line JSON.
 
-You can pass a property ID as an argument, via `--property`, or set the `GA_PROPERTY_ID` environment variable.
+You can pass a property ID as an argument, via `--property`, or set the `GA_PROPERTY_ID` environment variable. Both raw numbers and `properties/` prefixed IDs are accepted (e.g. `123456789` or `properties/123456789`).
 
 ```bash
 export GA_PROPERTY_ID=123456789
@@ -80,7 +80,7 @@ google-analytics-cli ads-links 123456789
 
 ### annotations
 
-List annotations (notes) for a property.
+List annotations (notes) for a property. Uses the Admin API v1alpha.
 
 ```bash
 google-analytics-cli annotations 123456789
@@ -138,6 +138,14 @@ google-analytics-cli realtime 123456789 \
   --metrics "activeUsers" \
   --order-by '[{"metric": {"metricName": "activeUsers"}, "desc": true}]' \
   --limit 5
+```
+
+## Error output
+
+Errors are written to stderr as JSON with an `error` field. For Google API errors, `code` and `details` are included when available:
+
+```json
+{"error": "Permission denied", "code": 7}
 ```
 
 ## License

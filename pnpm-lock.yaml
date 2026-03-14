@@ -17,9 +17,6 @@ importers:
       commander:
         specifier: ^14.0.3
         version: 14.0.3
-      google-auth-library:
-        specifier: ^10.6.1
-        version: 10.6.1
     devDependencies:
       '@types/node':
         specifier: ^25.5.0

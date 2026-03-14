@@ -6,20 +6,31 @@
   "bin": {
     "google-analytics-cli": "dist/index.js"
   },
+  "files": ["dist", "README.md", "LICENSE"],
   "scripts": {
     "build": "tsc",
     "dev": "tsx src/index.ts",
-    "prepublishOnly": "pnpm build"
+    "prepack": "pnpm build"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Bin-Huang/google-analytics-cli.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Bin-Huang/google-analytics-cli/issues"
+  },
+  "homepage": "https://github.com/Bin-Huang/google-analytics-cli#readme",
   "keywords": [],
   "author": "",
   "license": "Apache-2.0",
+  "engines": {
+    "node": ">=18"
+  },
   "packageManager": "pnpm@10.32.1",
   "dependencies": {
     "@google-analytics/admin": "^9.0.1",
     "@google-analytics/data": "^5.2.1",
-    "commander": "^14.0.3",
-    "google-auth-library": "^10.6.1"
+    "commander": "^14.0.3"
   },
   "devDependencies": {
     "@types/node": "^25.5.0",
