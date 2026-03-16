@@ -199,6 +199,10 @@ Errors are written to stderr as JSON with an `error` field. For Google API error
 {"error": "Permission denied", "code": 7}
 ```
 
+## Related
+
+- [google-search-console-cli](https://github.com/Bin-Huang/google-search-console-cli) — Google Search Console CLI for AI agents
+
 ## License
 
 Apache-2.0
