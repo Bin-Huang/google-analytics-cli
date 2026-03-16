@@ -32,40 +32,68 @@ This CLI is a thin wrapper around Google's official APIs:
 
 Under the hood it uses the official Node.js client libraries [`@google-analytics/admin`](https://www.npmjs.com/package/@google-analytics/admin) and [`@google-analytics/data`](https://www.npmjs.com/package/@google-analytics/data). All API responses are passed through as JSON — no transformation or aggregation.
 
-## Authentication
+## Setup
 
-Credentials are resolved in this order:
+### Step 1: Enable the Google Analytics APIs
 
-1. **`--credentials <path>` flag** — pass a service account JSON key file directly
-2. **`GOOGLE_APPLICATION_CREDENTIALS` env var** — standard [ADC](https://cloud.google.com/docs/authentication/application-default-credentials) environment variable
-3. **`~/.config/google-analytics-cli/credentials.json`** — default credentials file (auto-detected if present)
-4. **gcloud ADC** — falls back to `~/.config/gcloud/application_default_credentials.json`
+Go to the Google Cloud Console and enable both APIs for your project:
 
-### Service Account setup (recommended for automation)
+- [Enable GA4 Data API](https://console.cloud.google.com/apis/library/analyticsdata.googleapis.com)
+- [Enable GA4 Admin API](https://console.cloud.google.com/apis/library/analyticsadmin.googleapis.com)
 
-1. In the [Google Cloud Console](https://console.cloud.google.com/iam-admin/serviceaccounts), create a Service Account in a project with the Google Analytics Data API and Admin API enabled.
-2. Create a JSON key for the Service Account and download it.
-3. Place the key file in one of the locations above, for example:
+If you don't have a project yet, create one first.
+
+### Step 2: Create a Service Account
+
+1. Go to [IAM & Admin > Service Accounts](https://console.cloud.google.com/iam-admin/serviceaccounts) in the same project.
+2. Click **Create Service Account**, give it a name (e.g. `analytics-reader`), and click **Done**.
+3. Click on the newly created Service Account, go to the **Keys** tab.
+4. Click **Add Key > Create new key > JSON**, and download the key file.
+
+### Step 3: Place the credentials file
+
+Choose one of these options:
 
 ```bash
-# Option: use the default path
-cp service-account-key.json ~/.config/google-analytics-cli/credentials.json
+# Option A: Default path (recommended)
+mkdir -p ~/.config/google-analytics-cli
+cp ~/Downloads/your-key-file.json ~/.config/google-analytics-cli/credentials.json
 
-# Option: set the env var
-export GOOGLE_APPLICATION_CREDENTIALS="/path/to/service-account-key.json"
+# Option B: Environment variable
+export GOOGLE_APPLICATION_CREDENTIALS="/path/to/your-key-file.json"
 
-# Option: pass per-invocation
-google-analytics-cli accounts --credentials /path/to/service-account-key.json
+# Option C: Pass per command
+google-analytics-cli accounts --credentials /path/to/your-key-file.json
 ```
 
-4. In [Google Analytics Admin](https://analytics.google.com/analytics/web/#/a/p/admin), go to **Property Access Management** and add the Service Account email (e.g. `name@project.iam.gserviceaccount.com`) as a **Viewer**.
+Credentials are resolved in this order:
+1. `--credentials <path>` flag
+2. `GOOGLE_APPLICATION_CREDENTIALS` env var
+3. `~/.config/google-analytics-cli/credentials.json` (auto-detected)
+4. gcloud Application Default Credentials
 
-### gcloud ADC (for local development)
+### Step 4: Grant access in Google Analytics
+
+1. Open [Google Analytics](https://analytics.google.com/).
+2. Go to **Admin** (gear icon at bottom-left).
+3. Under **Account** or **Property**, click **Access Management**.
+4. Click **+** > **Add users**.
+5. Enter the Service Account email (find it in your key file's `client_email` field, e.g. `my-sa@my-project.iam.gserviceaccount.com`).
+6. Assign the **Viewer** role (read-only access to all properties under the account).
+7. Click **Add**.
+
+Adding at the **Account** level grants access to all properties under that account. You can also add at the **Property** level for more granular control.
+
+### Alternative: gcloud ADC (for local development)
+
+If you prefer not to use a Service Account, you can authenticate with your own Google account:
 
 ```bash
 gcloud auth application-default login \
   --scopes="https://www.googleapis.com/auth/analytics.readonly"
 ```
+
+This uses your personal Google account's Analytics access. Good for local development, not recommended for automation.
 
 ## Usage
 
