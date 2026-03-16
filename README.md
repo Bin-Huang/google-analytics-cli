@@ -21,6 +21,15 @@ pnpm install
 pnpm build
 ```
 
+## How it works
+
+This CLI is a thin wrapper around Google's official APIs:
+
+- **[GA4 Admin API](https://developers.google.com/analytics/devguides/config/admin/v1)** — account/property management (`accounts`, `property`, `ads-links`, `annotations`, `custom-dims`)
+- **[GA4 Data API](https://developers.google.com/analytics/devguides/reporting/data/v1)** — analytics reporting (`report`, `realtime`)
+
+Under the hood it uses the official Node.js client libraries [`@google-analytics/admin`](https://www.npmjs.com/package/@google-analytics/admin) and [`@google-analytics/data`](https://www.npmjs.com/package/@google-analytics/data). All API responses are passed through as JSON — no transformation or aggregation.
+
 ## Authentication
 
 Credentials are resolved in this order:
