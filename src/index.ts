@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { Command } from "commander";
+import { Command, CommanderError } from "commander";
 import { version } from "./auth.js";
 import { registerAdminCommands } from "./commands/admin.js";
 import { registerReportingCommands } from "./commands/reporting.js";
@@ -29,10 +29,27 @@ async function main() {
       process.env.GA_PROPERTY_ID,
     );
 
+  program.exitOverride();
+  program.configureOutput({
+    writeErr: (str) =>
+      process.stderr.write(JSON.stringify({ error: str.trim() }) + "\n"),
+    writeOut: (str) => process.stdout.write(str),
+  });
+
   registerAdminCommands(program);
   registerReportingCommands(program);
 
-  await program.parseAsync();
+  try {
+    await program.parseAsync();
+  } catch (err) {
+    if (err instanceof CommanderError && err.exitCode === 0) {
+      process.exit(0);
+    }
+    const code = err instanceof CommanderError ? err.exitCode : 1;
+    const message = err instanceof Error ? err.message : String(err);
+    process.stderr.write(JSON.stringify({ error: message }) + "\n");
+    process.exit(code);
+  }
 }
 
 main();
