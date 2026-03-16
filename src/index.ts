@@ -48,6 +48,12 @@ async function main() {
   registerAdminCommands(program);
   registerReportingCommands(program);
 
+  // No args: show help and exit cleanly
+  if (process.argv.length <= 2) {
+    program.outputHelp();
+    process.exit(0);
+  }
+
   try {
     await program.parseAsync();
   } catch (err) {
