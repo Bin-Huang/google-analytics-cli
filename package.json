@@ -20,8 +20,8 @@
     "url": "https://github.com/Bin-Huang/google-analytics-cli/issues"
   },
   "homepage": "https://github.com/Bin-Huang/google-analytics-cli#readme",
-  "keywords": [],
-  "author": "",
+  "keywords": ["google-analytics", "ga4", "analytics", "cli", "ai-agent", "google-analytics-data-api", "google-analytics-admin-api"],
+  "author": "Benn Huang <tohuangbin@gmail.com>",
   "license": "Apache-2.0",
   "engines": {
     "node": ">=18"
