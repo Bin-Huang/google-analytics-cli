@@ -42,13 +42,13 @@ async function main() {
   try {
     await program.parseAsync();
   } catch (err) {
-    if (err instanceof CommanderError && err.exitCode === 0) {
-      process.exit(0);
+    if (err instanceof CommanderError) {
+      // Commander already wrote to writeErr; just exit with its code
+      process.exit(err.exitCode);
     }
-    const code = err instanceof CommanderError ? err.exitCode : 1;
     const message = err instanceof Error ? err.message : String(err);
     process.stderr.write(JSON.stringify({ error: message }) + "\n");
-    process.exit(code);
+    process.exit(1);
   }
 }
 
