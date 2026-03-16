@@ -1,6 +1,6 @@
 # google-analytics-cli
 
-A Google Analytics CLI designed for AI agents. Wraps the official GA4 Admin and Data APIs with simple, agent-friendly commands.
+Give AI agents direct access to Google Analytics data. One command to query properties, pull reports, and check realtime metrics -- no SDK, no docs to read, no tokens wasted on boilerplate.
 
 **Works with:** OpenClaw, Claude Code, Cursor, Codex, and any agent that can run shell commands.
 
@@ -25,7 +25,7 @@ pnpm build
 
 ## How it works
 
-This CLI is a thin wrapper around Google's official APIs:
+Built on Google's official APIs. Handles service account authentication and request signing. Every command outputs structured JSON to stdout, ready for agents to parse without extra processing.
 
 - **[GA4 Admin API](https://developers.google.com/analytics/devguides/config/admin/v1)** — account/property management (`accounts`, `property`, `ads-links`, `annotations`, `custom-dims`)
 - **[GA4 Data API](https://developers.google.com/analytics/devguides/reporting/data/v1)** — analytics reporting (`report`, `realtime`)
