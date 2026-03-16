@@ -23,21 +23,33 @@ pnpm build
 
 ## Authentication
 
-The CLI uses [Google Application Default Credentials (ADC)](https://cloud.google.com/docs/authentication/application-default-credentials) with read-only Analytics scope. Two methods are supported:
+Credentials are resolved in this order:
 
-### Option A: Service Account (recommended for automation)
+1. **`--credentials <path>` flag** — pass a service account JSON key file directly
+2. **`GOOGLE_APPLICATION_CREDENTIALS` env var** — standard [ADC](https://cloud.google.com/docs/authentication/application-default-credentials) environment variable
+3. **`~/.config/google-analytics-cli/credentials.json`** — default credentials file (auto-detected if present)
+4. **gcloud ADC** — falls back to `~/.config/gcloud/application_default_credentials.json`
+
+### Service Account setup (recommended for automation)
 
 1. In the [Google Cloud Console](https://console.cloud.google.com/iam-admin/serviceaccounts), create a Service Account in a project with the Google Analytics Data API and Admin API enabled.
 2. Create a JSON key for the Service Account and download it.
-3. Set the `GOOGLE_APPLICATION_CREDENTIALS` environment variable to the path of the JSON key file:
+3. Place the key file in one of the locations above, for example:
 
 ```bash
+# Option: use the default path
+cp service-account-key.json ~/.config/google-analytics-cli/credentials.json
+
+# Option: set the env var
 export GOOGLE_APPLICATION_CREDENTIALS="/path/to/service-account-key.json"
+
+# Option: pass per-invocation
+google-analytics-cli accounts --credentials /path/to/service-account-key.json
 ```
 
 4. In [Google Analytics Admin](https://analytics.google.com/analytics/web/#/a/p/admin), go to **Property Access Management** and add the Service Account email (e.g. `name@project.iam.gserviceaccount.com`) as a **Viewer**.
 
-### Option B: gcloud ADC (for local development)
+### gcloud ADC (for local development)
 
 ```bash
 gcloud auth application-default login \

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { Command, CommanderError } from "commander";
-import { version } from "./auth.js";
+import { setCredentialsPath, version } from "./auth.js";
 import { registerAdminCommands } from "./commands/admin.js";
 import { registerReportingCommands } from "./commands/reporting.js";
 
@@ -27,6 +27,10 @@ async function main() {
       "--property <id>",
       "GA4 property ID (or set GA_PROPERTY_ID)",
       process.env.GA_PROPERTY_ID,
+    )
+    .option(
+      "--credentials <path>",
+      "Path to service account JSON key file",
     );
 
   program.exitOverride();
@@ -34,6 +38,11 @@ async function main() {
     writeErr: (str) =>
       process.stderr.write(JSON.stringify({ error: str.trim() }) + "\n"),
     writeOut: (str) => process.stdout.write(str),
+  });
+
+  program.hook("preAction", (thisCommand) => {
+    const { credentials } = thisCommand.optsWithGlobals();
+    if (credentials) setCredentialsPath(credentials);
   });
 
   registerAdminCommands(program);
