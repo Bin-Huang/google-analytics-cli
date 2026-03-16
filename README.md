@@ -1,6 +1,6 @@
 # google-analytics-cli
 
-A Google Analytics CLI designed for AI agents. Wraps the GA4 Admin and Data APIs with simple commands that output JSON.
+A Google Analytics CLI designed for AI agents. Wraps the official GA4 Admin and Data APIs with simple commands that output JSON.
 
 **Works with:** OpenClaw, Claude Code, Cursor, Codex, and any agent that can run shell commands.
 
