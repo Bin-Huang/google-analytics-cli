@@ -124,7 +124,6 @@ export function registerReportingCommands(program: Command): void {
     .option("--metric-filter <json>", "JSON FilterExpression for metrics")
     .option("--order-by <json>", "JSON array of OrderBy objects")
     .option("--limit <n>", "Max rows to return (<=250000)", parsePositiveInt)
-    .option("--offset <n>", "Row offset for pagination", parsePositiveInt)
     .option("--return-property-quota", "Include property quota in response")
     .action(async (_propertyId, opts, cmd: Command) => {
       const format = cmd.optsWithGlobals().format;
@@ -155,7 +154,6 @@ export function registerReportingCommands(program: Command): void {
           request.orderBys = o;
         }
         if (opts.limit != null) request.limit = opts.limit;
-        if (opts.offset != null) request.offset = opts.offset;
         if (opts.returnPropertyQuota) request.returnPropertyQuota = true;
 
         const client = createDataClient();
