@@ -201,7 +201,11 @@ Errors are written to stderr as JSON with an `error` field. For Google API error
 
 ## Related
 
-- [google-search-console-cli](https://github.com/Bin-Huang/google-search-console-cli) — Google Search Console CLI for AI agents
+- [google-search-console-cli](https://github.com/Bin-Huang/google-search-console-cli) -- Google Search Console
+- [google-ads-open-cli](https://github.com/Bin-Huang/google-ads-open-cli) -- Google Ads
+- [meta-ads-open-cli](https://github.com/Bin-Huang/meta-ads-open-cli) -- Meta Ads
+- [microsoft-ads-cli](https://github.com/Bin-Huang/microsoft-ads-cli) -- Microsoft Ads
+- [tiktok-ads-cli](https://github.com/Bin-Huang/tiktok-ads-cli) -- TikTok Ads
 
 ## License
 
