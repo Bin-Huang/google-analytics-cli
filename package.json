@@ -1,12 +1,16 @@
 {
   "name": "google-analytics-cli",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Google Analytics CLI for AI agents",
   "type": "module",
   "bin": {
     "google-analytics-cli": "dist/index.js"
   },
-  "files": ["dist", "README.md", "LICENSE"],
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
     "build": "tsc",
     "dev": "tsx src/index.ts",
@@ -20,7 +24,15 @@
     "url": "https://github.com/Bin-Huang/google-analytics-cli/issues"
   },
   "homepage": "https://github.com/Bin-Huang/google-analytics-cli#readme",
-  "keywords": ["google-analytics", "ga4", "analytics", "cli", "ai-agent", "google-analytics-data-api", "google-analytics-admin-api"],
+  "keywords": [
+    "google-analytics",
+    "ga4",
+    "analytics",
+    "cli",
+    "ai-agent",
+    "google-analytics-data-api",
+    "google-analytics-admin-api"
+  ],
   "author": "Benn Huang <tohuangbin@gmail.com>",
   "license": "Apache-2.0",
   "engines": {
