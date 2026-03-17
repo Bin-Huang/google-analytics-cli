@@ -1,6 +1,6 @@
 # google-analytics-cli
 
-Give AI agents direct access to Google Analytics data. One command to query properties, pull reports, and check realtime metrics -- no SDK, no docs to read, no tokens wasted on boilerplate.
+Google Analytics CLI for AI agents (and humans). Run custom reports with flexible dimensions and date ranges, monitor realtime active users, manage custom metrics from the GA4 API, and more.
 
 **Works with:** OpenClaw, Claude Code, Cursor, Codex, and any agent that can run shell commands.
 
