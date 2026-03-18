@@ -8,21 +8,12 @@ Google Analytics CLI for AI agents (and humans). Run custom reports with flexibl
 
 ```bash
 npm install -g google-analytics-cli
-```
 
-Or run directly with npx:
-
-```bash
-npx google-analytics-cli --help
-```
-
-### Agent Skill
-
-Install as an agent skill so AI agents (OpenClaw, Claude Code, Cursor, Codex, etc.) automatically use google-analytics-cli for GA4 analysis:
-
-```bash
+# Add skills for AI agents (Claude Code, Cursor, Codex, etc.)
 npx skills add Bin-Huang/google-analytics-cli
 ```
+
+Or run directly: `npx google-analytics-cli --help`
 
 For development:
 
