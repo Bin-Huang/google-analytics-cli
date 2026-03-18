@@ -11,6 +11,10 @@ export function resolvePropertyId(cmd: Command): string {
   return String(pid).startsWith("properties/") ? pid : `properties/${pid}`;
 }
 
+export function resolveAccountId(id: string): string {
+  return id.startsWith("accounts/") ? id : `accounts/${id}`;
+}
+
 export function outputJson(data: unknown, format: string): void {
   const indent = format === "json" ? 2 : undefined;
   process.stdout.write(JSON.stringify(data ?? null, null, indent) + "\n");
@@ -43,5 +47,47 @@ export async function run(
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : String(err);
     errorJson(message, err);
+  }
+}
+
+export async function collectAsync<T>(iterable: AsyncIterable<T>): Promise<T[]> {
+  const items: T[] = [];
+  for await (const item of iterable) {
+    items.push(item);
+  }
+  return items;
+}
+
+export function parseJson(value: string): unknown {
+  try {
+    return JSON.parse(value);
+  } catch {
+    throw new Error(`Invalid JSON: ${value}`);
+  }
+}
+
+export function parsePositiveInt(value: string): number {
+  const n = parseInt(value, 10);
+  if (Number.isNaN(n) || n < 0) {
+    throw new Error(`Expected a non-negative integer, got: ${value}`);
+  }
+  return n;
+}
+
+export function validateDateRanges(value: unknown): void {
+  if (!Array.isArray(value)) {
+    throw new Error("--date-ranges must be a JSON array.");
+  }
+}
+
+export function validateOrderBy(value: unknown): void {
+  if (!Array.isArray(value)) {
+    throw new Error("--order-by must be a JSON array.");
+  }
+}
+
+export function validateFilter(value: unknown, name: string): void {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) {
+    throw new Error(`${name} must be a JSON object.`);
   }
 }

@@ -62,15 +62,63 @@ google-analytics-cli accounts
 # Get details about a specific property
 google-analytics-cli property 123456789
 
+# List properties for an account
+google-analytics-cli properties 987654321
+google-analytics-cli properties 987654321 --show-deleted
+
+# List data streams for a property
+google-analytics-cli data-streams 123456789
+
+# List key events (conversions) for a property
+google-analytics-cli key-events 123456789
+
+# List custom dimensions for a property (Admin API)
+google-analytics-cli admin-custom-dimensions 123456789
+
+# List custom metrics for a property (Admin API)
+google-analytics-cli admin-custom-metrics 123456789
+
+# Get data retention settings for a property
+google-analytics-cli data-retention 123456789
+
 # List Google Ads links for a property
 google-analytics-cli ads-links 123456789
 
 # List annotations for a property (alpha API)
 google-analytics-cli annotations 123456789
 
-# Get custom dimensions and metrics for a property
+# Get custom dimensions and metrics for a property (Data API, filters by customDefinition)
 google-analytics-cli custom-dims 123456789
 ```
+
+### Change history
+
+Search change history events for an account:
+
+```bash
+google-analytics-cli change-history 987654321
+google-analytics-cli change-history 987654321 --filter-property 123456789
+google-analytics-cli change-history 987654321 --earliest-change-time 2026-01-01T00:00:00Z
+google-analytics-cli change-history 987654321 --earliest-change-time 2026-01-01T00:00:00Z --latest-change-time 2026-03-01T00:00:00Z
+google-analytics-cli change-history 987654321 --actor-email user@example.com
+google-analytics-cli change-history 987654321 --resource-type '["PROPERTY","DATA_STREAM"]'
+google-analytics-cli change-history 987654321 --action '["CREATED","UPDATED"]'
+```
+
+### Access report
+
+Run an access report to see who accessed the property:
+
+```bash
+google-analytics-cli access-report 123456789 \
+  --dimensions "accessorEmail,accessMechanism" \
+  --metrics "accessCount" \
+  --date-ranges '[{"startDate": "30daysAgo", "endDate": "yesterday"}]'
+```
+
+Options: `--dimension-filter`, `--metric-filter`, `--order-by`, `--limit`, `--offset`, `--time-zone`, `--return-entity-quota`, `--include-all-users`, `--expand-groups`.
+
+Note: Access report uses `dimensionName`/`metricName` (not `name`) internally and `entity` (not `property`).
 
 ## Running reports
 
@@ -87,6 +135,7 @@ google-analytics-cli report <property_id> \
   [--limit <n>] \
   [--offset <n>] \
   [--currency-code <ISO4217>] \
+  [--keep-empty-rows] \
   [--return-property-quota]
 ```
 
@@ -174,6 +223,62 @@ The `--order-by` option takes a JSON array:
 ```
 
 DimensionOrderBy orderType values: `ALPHANUMERIC`, `CASE_INSENSITIVE_ALPHANUMERIC`, `NUMERIC`.
+
+## Pivot reports
+
+Run a pivot report for cross-tabulation analysis:
+
+```bash
+google-analytics-cli pivot-report 123456789 \
+  --dimensions "country,browser" \
+  --metrics "sessions,activeUsers" \
+  --date-ranges '[{"startDate": "30daysAgo", "endDate": "yesterday"}]' \
+  --pivots '[{"fieldNames": ["browser"], "limit": 5, "orderBys": [{"metric": {"metricName": "sessions"}, "desc": true}]}]'
+```
+
+Options: `--dimension-filter`, `--metric-filter`, `--currency-code`, `--keep-empty-rows`, `--return-property-quota`.
+
+## Batch reports
+
+Run up to 5 reports in a single request:
+
+```bash
+google-analytics-cli batch-report 123456789 \
+  --requests '[{"dimensions": [{"name": "date"}], "metrics": [{"name": "activeUsers"}], "dateRanges": [{"startDate": "7daysAgo", "endDate": "yesterday"}]}, {"dimensions": [{"name": "country"}], "metrics": [{"name": "sessions"}], "dateRanges": [{"startDate": "7daysAgo", "endDate": "yesterday"}]}]'
+```
+
+## Metadata and compatibility
+
+```bash
+# Get full metadata (all available dimensions and metrics)
+google-analytics-cli metadata 123456789
+
+# Check if dimensions and metrics are compatible
+google-analytics-cli check-compatibility 123456789 \
+  --dimensions "date,country" \
+  --metrics "sessions,activeUsers"
+```
+
+Options: `--dimension-filter`, `--metric-filter` (same FilterExpression format as `report`).
+
+## Audience exports
+
+```bash
+# Create an audience export
+google-analytics-cli audience-export-create 123456789 \
+  --audience "properties/123456789/audiences/456" \
+  --dimensions "deviceId,userId"
+
+# Get status of an audience export
+google-analytics-cli audience-export 123456789 properties/123456789/audienceExports/789
+
+# List all audience exports
+google-analytics-cli audience-exports 123456789
+
+# Query rows from a completed audience export
+google-analytics-cli audience-export-query 123456789 properties/123456789/audienceExports/789 \
+  --limit 1000 --offset 0
+```
 
 ## Realtime reports
 
@@ -429,7 +534,7 @@ google-analytics-cli realtime 123456789 \
 
 ## Important rules
 
-1. **Dimension/metric compatibility.** Not all dimensions and metrics can be used together. If you get a compatibility error, reduce the number of dimensions or try different combinations. Use the `custom-dims` command to discover custom dimensions and metrics available for a property.
+1. **Dimension/metric compatibility.** Not all dimensions and metrics can be used together. If you get a compatibility error, reduce the number of dimensions or try different combinations. Use the `check-compatibility` command to test before running a report, or use `metadata` to see all available dimensions and metrics.
 
 2. **Max 9 dimensions** per report request.
 
@@ -444,6 +549,10 @@ google-analytics-cli realtime 123456789 \
 7. **Quota.** Use `--return-property-quota` to check current quota status. Standard properties get 200,000 tokens/day.
 
 8. **Filter scope.** `--dimension-filter` only accepts dimension field names. `--metric-filter` only accepts metric field names. They are applied independently by the API.
+
+9. **Batch reports.** Max 5 report objects per batch request.
+
+10. **Audience exports.** Creating an export returns a long-running operation. Poll with `audience-export` until state is `COMPLETED`, then query rows with `audience-export-query`.
 
 ## Workflow guidance
 
@@ -461,10 +570,18 @@ google-analytics-cli realtime 123456789 \
 4. Check device and geography breakdowns for segment-specific issues
 5. Use `--dimension-filter` to isolate specific segments
 
+### Property exploration
+
+1. Run `google-analytics-cli properties <account_id>` to see all properties
+2. Run `google-analytics-cli data-streams <property_id>` to see data streams
+3. Run `google-analytics-cli key-events <property_id>` to see configured conversions
+4. Run `google-analytics-cli metadata <property_id>` for all available dimensions and metrics
+5. Run `google-analytics-cli check-compatibility <property_id>` before complex reports
+
 ### Error handling
 
 - **Permission denied** -- the service account needs Viewer access in Google Analytics
-- **Incompatible dimensions/metrics** -- reduce dimensions or try different combinations
+- **Incompatible dimensions/metrics** -- use `check-compatibility` to test, reduce dimensions or try different combinations
 - **Empty results** -- check property ID, date range, and whether data exists for those dimensions
 - **Quota exceeded** -- use `--return-property-quota` to check usage; reduce request frequency or complexity
 
