@@ -16,6 +16,14 @@ Or run directly with npx:
 npx google-analytics-cli --help
 ```
 
+### Agent Skill
+
+Install as an agent skill so AI agents (OpenClaw, Claude Code, Cursor, Codex, etc.) automatically use google-analytics-cli for GA4 analysis:
+
+```bash
+npx skills add Bin-Huang/google-analytics-cli
+```
+
 For development:
 
 ```bash

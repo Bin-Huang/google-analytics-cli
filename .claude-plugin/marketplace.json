@@ -1,0 +1,20 @@
+{
+  "name": "google-analytics-cli",
+  "owner": {
+    "name": "Benn Huang"
+  },
+  "metadata": {
+    "description": "Google Analytics CLI for AI agents, built on the official GA4 Data and Admin APIs",
+    "version": "0.1.0"
+  },
+  "plugins": [
+    {
+      "name": "google-analytics-cli",
+      "description": "Google Analytics 4 reporting and analysis skill for AI agents",
+      "source": "./",
+      "skills": [
+        "./skills/google-analytics-cli"
+      ]
+    }
+  ]
+}
