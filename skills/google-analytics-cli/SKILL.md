@@ -544,7 +544,7 @@ google-analytics-cli realtime 123456789 \
 
 5. **Realtime is limited.** Only 15 dimensions and 4 metrics. No date ranges, no currency code, no offset. Covers the last 30 minutes.
 
-6. **Thresholded dimensions.** `userAgeBracket`, `userGender`, and `audienceId`/`audienceName` may have rate limits (120 requests/hour) and may return thresholded (sampled) data for privacy.
+6. **Thresholded dimensions.** `userAgeBracket`, `userGender`, and `audienceId`/`audienceName` may return thresholded (sampled) data for privacy when row counts are too low.
 
 7. **Quota.** Use `--return-property-quota` to check current quota status. Standard properties get 200,000 tokens/day.
 
@@ -552,7 +552,7 @@ google-analytics-cli realtime 123456789 \
 
 9. **Batch reports.** Max 5 report objects per batch request.
 
-10. **Audience exports.** Creating an export returns a long-running operation. Poll with `audience-export` until state is `COMPLETED`, then query rows with `audience-export-query`.
+10. **Audience exports.** Creating an export returns a long-running operation. Poll with `audience-export` until state is `ACTIVE`, then query rows with `audience-export-query`.
 
 ## Workflow guidance
 
