@@ -26,8 +26,8 @@ pnpm build
 
 Built on Google's official APIs. Handles service account authentication and request signing. Every command outputs structured JSON to stdout, ready for agents to parse without extra processing.
 
-- **[GA4 Admin API](https://developers.google.com/analytics/devguides/config/admin/v1)** — account/property management (`accounts`, `property`, `ads-links`, `annotations`, `custom-dims`)
-- **[GA4 Data API](https://developers.google.com/analytics/devguides/reporting/data/v1)** — analytics reporting (`report`, `realtime`)
+- **[GA4 Admin API](https://developers.google.com/analytics/devguides/config/admin/v1)** — account/property management, data streams, key events, change history, access reports
+- **[GA4 Data API](https://developers.google.com/analytics/devguides/reporting/data/v1)** — standard/pivot/batch reports, realtime, audience exports, metadata
 
 Under the hood it uses the official Node.js client libraries [`@google-analytics/admin`](https://www.npmjs.com/package/@google-analytics/admin) and [`@google-analytics/data`](https://www.npmjs.com/package/@google-analytics/data). All API responses are passed through as JSON — no transformation or aggregation.
 
@@ -136,6 +136,99 @@ List annotations (notes) for a property. Uses the Admin API v1alpha.
 google-analytics-cli annotations 123456789
 ```
 
+### properties
+
+List properties for an account.
+
+```bash
+google-analytics-cli properties 123456789
+google-analytics-cli properties 123456789 --show-deleted
+```
+
+### data-streams
+
+List data streams for a property.
+
+```bash
+google-analytics-cli data-streams 123456789
+```
+
+### key-events
+
+List key events for a property.
+
+```bash
+google-analytics-cli key-events 123456789
+```
+
+### admin-custom-dimensions
+
+List custom dimensions for a property (Admin API).
+
+```bash
+google-analytics-cli admin-custom-dimensions 123456789
+```
+
+### admin-custom-metrics
+
+List custom metrics for a property (Admin API).
+
+```bash
+google-analytics-cli admin-custom-metrics 123456789
+```
+
+### data-retention
+
+Get data retention settings for a property.
+
+```bash
+google-analytics-cli data-retention 123456789
+```
+
+### change-history
+
+Search change history events for an account.
+
+```bash
+google-analytics-cli change-history 123456789
+google-analytics-cli change-history 123456789 \
+  --earliest-change-time 2025-01-01T00:00:00Z \
+  --actor-email user@example.com
+```
+
+Options:
+- `--filter-property <id>` -- filter by property ID
+- `--earliest-change-time <timestamp>` -- earliest change time (RFC3339)
+- `--latest-change-time <timestamp>` -- latest change time (RFC3339)
+- `--resource-type <json>` -- JSON array of resource types
+- `--action <json>` -- JSON array of action types
+- `--actor-email <email>` -- filter by actor email
+
+### access-report
+
+Run an access report for a property.
+
+```bash
+google-analytics-cli access-report 123456789 \
+  --dimensions "epochTimeMicros,userEmail" \
+  --metrics "accessCount" \
+  --date-ranges '[{"startDate": "30daysAgo", "endDate": "yesterday"}]'
+```
+
+Options:
+- `--dimensions <names>` -- comma-separated dimension names (required)
+- `--metrics <names>` -- comma-separated metric names (required)
+- `--date-ranges <json>` -- JSON array of date ranges (required)
+- `--dimension-filter <json>` -- JSON FilterExpression for dimensions
+- `--metric-filter <json>` -- JSON FilterExpression for metrics
+- `--order-by <json>` -- JSON array of OrderBy objects
+- `--limit <n>` -- max rows to return
+- `--offset <n>` -- row offset for pagination
+- `--time-zone <tz>` -- time zone (e.g. America/Los_Angeles)
+- `--return-entity-quota` -- include entity quota in response
+- `--include-all-users` -- include users who have never accessed the API
+- `--expand-groups` -- expand group memberships
+
 ### custom-dims
 
 Get custom dimensions and metrics for a property.
@@ -143,6 +236,30 @@ Get custom dimensions and metrics for a property.
 ```bash
 google-analytics-cli custom-dims 123456789
 ```
+
+### metadata
+
+Get full metadata (all dimensions and metrics) for a property.
+
+```bash
+google-analytics-cli metadata 123456789
+```
+
+### check-compatibility
+
+Check compatibility of dimensions and metrics before running a report.
+
+```bash
+google-analytics-cli check-compatibility 123456789 \
+  --dimensions "date,country" \
+  --metrics "activeUsers,sessions"
+```
+
+Options:
+- `--dimensions <names>` -- comma-separated dimension names
+- `--metrics <names>` -- comma-separated metric names
+- `--dimension-filter <json>` -- JSON FilterExpression for dimensions
+- `--metric-filter <json>` -- JSON FilterExpression for metrics
 
 ### report
 
@@ -173,6 +290,38 @@ google-analytics-cli report 123456789 \
   --return-property-quota
 ```
 
+### pivot-report
+
+Run a pivot report with cross-tabulated dimensions.
+
+```bash
+google-analytics-cli pivot-report 123456789 \
+  --dimensions "country,browser" \
+  --metrics "sessions" \
+  --date-ranges '[{"startDate": "30daysAgo", "endDate": "yesterday"}]' \
+  --pivots '[{"fieldNames": ["browser"], "limit": 5}]'
+```
+
+Options:
+- `--dimensions <names>` -- comma-separated dimension names (required)
+- `--metrics <names>` -- comma-separated metric names (required)
+- `--date-ranges <json>` -- JSON array of date ranges (required)
+- `--pivots <json>` -- JSON array of pivot definitions (required)
+- `--dimension-filter <json>` -- JSON FilterExpression for dimensions
+- `--metric-filter <json>` -- JSON FilterExpression for metrics
+- `--currency-code <code>` -- ISO4217 currency code
+- `--keep-empty-rows` -- include rows with all zero metric values
+- `--return-property-quota` -- include property quota in response
+
+### batch-report
+
+Run multiple reports in a single batch (max 5).
+
+```bash
+google-analytics-cli batch-report 123456789 \
+  --requests '[{"dimensions": [{"name": "date"}], "metrics": [{"name": "activeUsers"}], "dateRanges": [{"startDate": "7daysAgo", "endDate": "yesterday"}]}]'
+```
+
 ### realtime
 
 Run a realtime report (no date ranges or currency code).
@@ -188,6 +337,41 @@ google-analytics-cli realtime 123456789 \
   --metrics "activeUsers" \
   --order-by '[{"metric": {"metricName": "activeUsers"}, "desc": true}]' \
   --limit 5
+```
+
+### audience-export-create
+
+Create an audience export.
+
+```bash
+google-analytics-cli audience-export-create 123456789 \
+  --audience "properties/123456789/audiences/1" \
+  --dimensions "deviceId"
+```
+
+### audience-exports
+
+List audience exports for a property.
+
+```bash
+google-analytics-cli audience-exports 123456789
+```
+
+### audience-export
+
+Get an audience export by name.
+
+```bash
+google-analytics-cli audience-export 123456789 properties/123456789/audienceExports/abc123
+```
+
+### audience-export-query
+
+Query rows from an audience export.
+
+```bash
+google-analytics-cli audience-export-query 123456789 properties/123456789/audienceExports/abc123
+google-analytics-cli audience-export-query 123456789 properties/123456789/audienceExports/abc123 --limit 100 --offset 0
 ```
 
 ## Error output
