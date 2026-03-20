@@ -8,7 +8,7 @@ Google Analytics CLI for AI agents (and humans). Run custom reports with flexibl
 
 Tell your AI agent (e.g. OpenClaw):
 
-> Install the CLI and skills from https://github.com/Bin-Huang/google-analytics-cli
+> Install this CLI and skills from https://github.com/Bin-Huang/google-analytics-cli
 
 Or install manually:
 
