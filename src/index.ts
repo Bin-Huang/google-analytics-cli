@@ -10,7 +10,7 @@ async function main() {
 
   program
     .name("google-analytics-cli")
-    .description("Google Analytics CLI for AI agents")
+    .description("Google Analytics CLI & Skills for AI agents")
     .addHelpText("after", "\nDocs: https://github.com/Bin-Huang/google-analytics-cli")
     .version(version)
     .option(

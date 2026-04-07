@@ -1,7 +1,7 @@
 {
   "name": "google-analytics-cli",
   "version": "1.1.1",
-  "description": "Google Analytics CLI for AI agents",
+  "description": "Google Analytics CLI & Skills for AI agents",
   "type": "module",
   "bin": {
     "google-analytics-cli": "dist/index.js"

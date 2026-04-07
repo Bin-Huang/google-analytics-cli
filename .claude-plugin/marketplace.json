@@ -4,7 +4,7 @@
     "name": "Benn Huang"
   },
   "metadata": {
-    "description": "Google Analytics CLI for AI agents, built on the official GA4 Data and Admin APIs",
+    "description": "Google Analytics CLI & Skills for AI agents, built on the official GA4 Data and Admin APIs",
     "version": "0.1.0"
   },
   "plugins": [
