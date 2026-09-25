@@ -49,13 +49,19 @@ async function main() {
 
   program.hook("preAction", (thisCommand) => {
     const { credentials, profile } = thisCommand.optsWithGlobals();
-    if (credentials && profile) {
+    // GA_PROFILE only sets the default for --profile, so an explicit
+    // --credentials flag overrides it. Only the two flags together conflict.
+    const profileFromFlag = thisCommand.getOptionValueSource("profile") === "cli";
+    if (credentials && profileFromFlag) {
       throw new Error(
         "--credentials and --profile cannot be used together. Use one or the other.",
       );
     }
-    if (credentials) setCredentialsPath(credentials);
-    if (profile) setProfile(profile);
+    if (credentials) {
+      setCredentialsPath(credentials);
+    } else if (profile) {
+      setProfile(profile);
+    }
   });
 
   registerAdminCommands(program);
