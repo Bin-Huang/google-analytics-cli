@@ -50,6 +50,15 @@ export async function run(
   }
 }
 
+/**
+ * Call options for the client's `*Async` paging iterators. The iterators always
+ * fetch page by page; `autoPaginate: false` only stops gax from printing a
+ * non-JSON AutopaginateTrueWarning to stderr.
+ */
+export function asyncPagingOptions(): { autoPaginate: boolean } {
+  return { autoPaginate: false };
+}
+
 export async function collectAsync<T>(iterable: AsyncIterable<T>): Promise<T[]> {
   const items: T[] = [];
   for await (const item of iterable) {

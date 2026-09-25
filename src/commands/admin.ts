@@ -1,6 +1,7 @@
 import { Command } from "commander";
 import { createAdminAlphaClient, createAdminClient } from "../auth.js";
 import {
+  asyncPagingOptions,
   collectAsync,
   parseJson,
   parsePositiveInt,
@@ -20,7 +21,7 @@ export function registerAdminCommands(program: Command): void {
       const format = cmd.optsWithGlobals().format;
       await run(async () => {
         const client = createAdminClient();
-        return collectAsync(client.listAccountSummariesAsync());
+        return collectAsync(client.listAccountSummariesAsync({}, asyncPagingOptions()));
       }, format);
     });
 
@@ -51,7 +52,7 @@ export function registerAdminCommands(program: Command): void {
         if (opts.showDeleted) {
           request.showDeleted = true;
         }
-        return collectAsync(client.listPropertiesAsync(request));
+        return collectAsync(client.listPropertiesAsync(request, asyncPagingOptions()));
       }, format);
     });
 
@@ -63,7 +64,7 @@ export function registerAdminCommands(program: Command): void {
       const parent = resolvePropertyId(cmd);
       await run(async () => {
         const client = createAdminClient();
-        return collectAsync(client.listDataStreamsAsync({ parent }));
+        return collectAsync(client.listDataStreamsAsync({ parent }, asyncPagingOptions()));
       }, format);
     });
 
@@ -75,7 +76,7 @@ export function registerAdminCommands(program: Command): void {
       const parent = resolvePropertyId(cmd);
       await run(async () => {
         const client = createAdminClient();
-        return collectAsync(client.listKeyEventsAsync({ parent }));
+        return collectAsync(client.listKeyEventsAsync({ parent }, asyncPagingOptions()));
       }, format);
     });
 
@@ -87,7 +88,7 @@ export function registerAdminCommands(program: Command): void {
       const parent = resolvePropertyId(cmd);
       await run(async () => {
         const client = createAdminClient();
-        return collectAsync(client.listCustomDimensionsAsync({ parent }));
+        return collectAsync(client.listCustomDimensionsAsync({ parent }, asyncPagingOptions()));
       }, format);
     });
 
@@ -99,7 +100,7 @@ export function registerAdminCommands(program: Command): void {
       const parent = resolvePropertyId(cmd);
       await run(async () => {
         const client = createAdminClient();
-        return collectAsync(client.listCustomMetricsAsync({ parent }));
+        return collectAsync(client.listCustomMetricsAsync({ parent }, asyncPagingOptions()));
       }, format);
     });
 
@@ -126,7 +127,7 @@ export function registerAdminCommands(program: Command): void {
       const parent = resolvePropertyId(cmd);
       await run(async () => {
         const client = createAdminClient();
-        return collectAsync(client.listGoogleAdsLinksAsync({ parent }));
+        return collectAsync(client.listGoogleAdsLinksAsync({ parent }, asyncPagingOptions()));
       }, format);
     });
 
@@ -139,7 +140,7 @@ export function registerAdminCommands(program: Command): void {
       await run(async () => {
         const client = createAdminAlphaClient();
         return collectAsync(
-          client.listReportingDataAnnotationsAsync({ parent }),
+          client.listReportingDataAnnotationsAsync({ parent }, asyncPagingOptions()),
         );
       }, format);
     });
@@ -184,7 +185,7 @@ export function registerAdminCommands(program: Command): void {
         if (opts.actorEmail) {
           request.actorEmail = [opts.actorEmail];
         }
-        return collectAsync(client.searchChangeHistoryEventsAsync(request));
+        return collectAsync(client.searchChangeHistoryEventsAsync(request, asyncPagingOptions()));
       }, format);
     });
 
