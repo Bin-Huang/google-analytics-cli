@@ -11,6 +11,19 @@ export function resolvePropertyId(cmd: Command): string {
   return String(pid).startsWith("properties/") ? pid : `properties/${pid}`;
 }
 
+/**
+ * Audience export commands take the full export name, which already contains
+ * the property ID. The legacy `<property_id> <name>` form is still accepted.
+ */
+export function resolveAudienceExportName(cmd: Command): string {
+  if (cmd.args.length > 2) {
+    errorJson(
+      "Too many arguments. Pass only the audience export name (properties/<id>/audienceExports/<id>).",
+    );
+  }
+  return cmd.args[cmd.args.length - 1];
+}
+
 export function resolveAccountId(id: string): string {
   return id.startsWith("accounts/") ? id : `accounts/${id}`;
 }

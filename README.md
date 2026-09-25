@@ -391,7 +391,7 @@ google-analytics-cli audience-exports 123456789
 Get an audience export by name.
 
 ```bash
-google-analytics-cli audience-export 123456789 properties/123456789/audienceExports/abc123
+google-analytics-cli audience-export properties/123456789/audienceExports/abc123
 ```
 
 ### audience-export-query
@@ -399,8 +399,8 @@ google-analytics-cli audience-export 123456789 properties/123456789/audienceExpo
 Query rows from an audience export.
 
 ```bash
-google-analytics-cli audience-export-query 123456789 properties/123456789/audienceExports/abc123
-google-analytics-cli audience-export-query 123456789 properties/123456789/audienceExports/abc123 --limit 100 --offset 0
+google-analytics-cli audience-export-query properties/123456789/audienceExports/abc123
+google-analytics-cli audience-export-query properties/123456789/audienceExports/abc123 --limit 100 --offset 0
 ```
 
 ## Error output
