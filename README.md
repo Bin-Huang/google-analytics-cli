@@ -82,7 +82,7 @@ Credentials are resolved in this order:
 
 1. Open [Google Analytics](https://analytics.google.com/).
 2. Go to **Admin** (gear icon at bottom-left).
-3. Under **Account** or **Property**, click **Access Management**.
+3. Under **Account settings**, click **Account access management**. (For a single property, use **Property access management** under **Property settings**.)
 4. Click **+** > **Add users**.
 5. Enter the Service Account email (find it in your key file's `client_email` field, e.g. `my-sa@my-project.iam.gserviceaccount.com`).
 6. Assign the **Viewer** role (read-only access to all properties under the account).
@@ -90,16 +90,29 @@ Credentials are resolved in this order:
 
 Adding at the **Account** level grants access to all properties under that account. You can also add at the **Property** level for more granular control.
 
+#### Troubleshooting: "This email doesn't match a Google Account"
+
+- Paste the `client_email` value from the key file (it ends in `.iam.gserviceaccount.com`). Do not paste `client_id` or an OAuth client ID.
+- Make sure the Service Account still exists and is enabled in [IAM & Admin > Service Accounts](https://console.cloud.google.com/iam-admin/serviceaccounts).
+- A newly created Service Account can take a few minutes before GA4 accepts it. Wait and try again.
+
+If it still fails, use your own Google account with gcloud ADC (next section).
+
 ### Alternative: gcloud ADC (for local development)
 
 If you prefer not to use a Service Account, you can authenticate with your own Google account:
 
 ```bash
 gcloud auth application-default login \
-  --scopes="https://www.googleapis.com/auth/analytics.readonly"
+  --scopes="https://www.googleapis.com/auth/analytics.readonly,https://www.googleapis.com/auth/cloud-platform"
+
+# Bill API usage to the project where you enabled the APIs in Step 1
+gcloud auth application-default set-quota-project YOUR_PROJECT_ID
 ```
 
-This uses your personal Google account's Analytics access. Good for local development, not recommended for automation.
+gcloud rejects `--scopes` without the `cloud-platform` scope. If Google blocks the sign-in ("This app is blocked"), create an OAuth client ID of type **Desktop app** in your project and add `--client-id-file=/path/to/client_secret.json` to the login command.
+
+This uses your personal Google account's Analytics access. Good for local development, not recommended for automation. The CLI uses ADC only when no other credentials are configured (see the resolution order in Step 3).
 
 ## Managing multiple GA accounts
 
