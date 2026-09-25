@@ -276,13 +276,13 @@ google-analytics-cli audience-export-create 123456789 \
   --dimensions "deviceId,userId"
 
 # Get status of an audience export
-google-analytics-cli audience-export 123456789 properties/123456789/audienceExports/789
+google-analytics-cli audience-export properties/123456789/audienceExports/789
 
 # List all audience exports
 google-analytics-cli audience-exports 123456789
 
 # Query rows from a completed audience export
-google-analytics-cli audience-export-query 123456789 properties/123456789/audienceExports/789 \
+google-analytics-cli audience-export-query properties/123456789/audienceExports/789 \
   --limit 1000 --offset 0
 ```
 

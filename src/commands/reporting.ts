@@ -3,6 +3,7 @@ import { createDataClient } from "../auth.js";
 import {
   parseJson,
   parsePositiveInt,
+  resolveAudienceExportName,
   resolvePropertyId,
   run,
   validateDateRanges,
@@ -249,10 +250,14 @@ export function registerReportingCommands(program: Command): void {
     });
 
   program
-    .command("audience-export [property_id] <name>")
-    .description("Get an audience export by name")
-    .action(async (_propertyId, exportName: string, _opts, cmd: Command) => {
+    .command("audience-export <name>")
+    .description(
+      "Get an audience export by name (properties/<id>/audienceExports/<id>)",
+    )
+    .allowExcessArguments()
+    .action(async (_name, _opts, cmd: Command) => {
       const format = cmd.optsWithGlobals().format;
+      const exportName = resolveAudienceExportName(cmd);
       await run(async () => {
         const client = createDataClient();
         const [response] = await client.getAudienceExport({ name: exportName });
@@ -274,12 +279,16 @@ export function registerReportingCommands(program: Command): void {
     });
 
   program
-    .command("audience-export-query [property_id] <name>")
-    .description("Query rows from an audience export")
+    .command("audience-export-query <name>")
+    .description(
+      "Query rows from an audience export (properties/<id>/audienceExports/<id>)",
+    )
     .option("--limit <n>", "Max rows to return", parsePositiveInt)
     .option("--offset <n>", "Row offset for pagination", parsePositiveInt)
-    .action(async (_propertyId, exportName: string, opts, cmd: Command) => {
+    .allowExcessArguments()
+    .action(async (_name, opts, cmd: Command) => {
       const format = cmd.optsWithGlobals().format;
+      const exportName = resolveAudienceExportName(cmd);
       await run(async () => {
         const request: Record<string, unknown> = { name: exportName };
         if (opts.limit != null) request.limit = opts.limit;
