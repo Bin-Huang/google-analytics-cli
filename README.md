@@ -78,6 +78,8 @@ Credentials are resolved in this order:
 4. `~/.config/google-analytics-cli/credentials.json` (auto-detected)
 5. gcloud Application Default Credentials
 
+`--credentials` and `--profile` cannot be used together; `--credentials` overrides `GA_CLI_PROFILE`.
+
 ### Step 4: Grant access in Google Analytics
 
 1. Open [Google Analytics](https://analytics.google.com/).
@@ -135,6 +137,8 @@ google-analytics-cli accounts
 # List configured profiles
 google-analytics-cli profiles
 ```
+
+`--credentials` and `--profile` cannot be used together; `--credentials` overrides `GA_CLI_PROFILE`.
 
 ## Usage
 
@@ -414,6 +418,14 @@ Query rows from an audience export.
 ```bash
 google-analytics-cli audience-export-query properties/123456789/audienceExports/abc123
 google-analytics-cli audience-export-query properties/123456789/audienceExports/abc123 --limit 100 --offset 0
+```
+
+### profiles
+
+List credentials profiles in `~/.config/google-analytics-cli/profiles/` and show whether the default `credentials.json` exists. See [Managing multiple GA accounts](#managing-multiple-ga-accounts).
+
+```bash
+google-analytics-cli profiles
 ```
 
 ## Error output
