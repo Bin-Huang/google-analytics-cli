@@ -36,8 +36,8 @@ async function main() {
     )
     .option(
       "--profile <name>",
-      "Named credentials profile under ~/.config/google-analytics-cli/profiles/ (or set GA_PROFILE)",
-      process.env.GA_PROFILE,
+      "Named credentials profile under ~/.config/google-analytics-cli/profiles/ (or set GA_CLI_PROFILE)",
+      process.env.GA_CLI_PROFILE,
     );
 
   program.exitOverride();
@@ -49,7 +49,7 @@ async function main() {
 
   program.hook("preAction", (thisCommand) => {
     const { credentials, profile } = thisCommand.optsWithGlobals();
-    // GA_PROFILE only sets the default for --profile, so an explicit
+    // GA_CLI_PROFILE only sets the default for --profile, so an explicit
     // --credentials flag overrides it. Only the two flags together conflict.
     const profileFromFlag = thisCommand.getOptionValueSource("profile") === "cli";
     if (credentials && profileFromFlag) {

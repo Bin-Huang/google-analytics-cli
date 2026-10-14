@@ -73,7 +73,7 @@ google-analytics-cli accounts --credentials /path/to/your-key-file.json
 
 Credentials are resolved in this order:
 1. `--credentials <path>` flag
-2. `--profile <name>` flag (or `GA_PROFILE` env var) → `~/.config/google-analytics-cli/profiles/<name>.json`
+2. `--profile <name>` flag (or `GA_CLI_PROFILE` env var) → `~/.config/google-analytics-cli/profiles/<name>.json`
 3. `GOOGLE_APPLICATION_CREDENTIALS` env var
 4. `~/.config/google-analytics-cli/credentials.json` (auto-detected)
 5. gcloud Application Default Credentials
@@ -129,7 +129,7 @@ cp ~/Downloads/account-b-key.json ~/.config/google-analytics-cli/profiles/accoun
 google-analytics-cli accounts --profile account-a
 
 # Or set it for the shell session
-export GA_PROFILE=account-b
+export GA_CLI_PROFILE=account-b
 google-analytics-cli accounts
 
 # List configured profiles
