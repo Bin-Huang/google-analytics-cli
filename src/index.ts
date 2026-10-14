@@ -52,6 +52,9 @@ async function main() {
     // GA_PROFILE only sets the default for --profile, so an explicit
     // --credentials flag overrides it. Only the two flags together conflict.
     const profileFromFlag = thisCommand.getOptionValueSource("profile") === "cli";
+    if (profileFromFlag && !profile) {
+      throw new Error("--profile requires a non-empty profile name.");
+    }
     if (credentials && profileFromFlag) {
       throw new Error(
         "--credentials and --profile cannot be used together. Use one or the other.",
