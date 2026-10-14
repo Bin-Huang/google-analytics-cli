@@ -32,8 +32,12 @@ export function setProfile(name: string): void {
   profileName = name;
 }
 
+function isValidProfileName(name: string): boolean {
+  return PROFILE_NAME_PATTERN.test(name) && name !== "." && name !== "..";
+}
+
 function validateProfileName(name: string): void {
-  if (!PROFILE_NAME_PATTERN.test(name) || name === "." || name === "..") {
+  if (!isValidProfileName(name)) {
     throw new Error(
       `Invalid profile name "${name}". Profile names may only contain letters, digits, dots, underscores, and dashes.`,
     );
@@ -53,6 +57,8 @@ export function listProfiles(): { name: string; path: string }[] {
       name: f.slice(0, -".json".length),
       path: path.join(PROFILES_DIR, f),
     }))
+    // Hide files that --profile would reject, e.g. "client a.json"
+    .filter((p) => isValidProfileName(p.name))
     .sort((a, b) => a.name.localeCompare(b.name));
 }
 
