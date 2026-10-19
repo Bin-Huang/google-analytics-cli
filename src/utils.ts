@@ -36,6 +36,22 @@ export function resolveAccountId(id: string): string {
   return id.startsWith("accounts/") ? id : `accounts/${id}`;
 }
 
+/**
+ * An empty account list means the credentials work but have no access yet.
+ * stdout stays `[]` and the exit code stays 0, so only stderr gets a hint.
+ */
+export function warnIfNoAccounts(summaries: unknown[]): void {
+  if (summaries.length > 0) return;
+  process.stderr.write(
+    JSON.stringify({
+      warning:
+        "No accounts found. The credentials work, but no Google Analytics account or property grants them access yet. " +
+        "Add the service account email (client_email in the key file) with the Viewer role, or wait if you added it recently. " +
+        "See https://github.com/Bin-Huang/google-analytics-cli#step-4-grant-access-in-google-analytics",
+    }) + "\n",
+  );
+}
+
 export function outputJson(data: unknown, format: string): void {
   const indent = format === "json" ? 2 : undefined;
   process.stdout.write(JSON.stringify(data ?? null, null, indent) + "\n");

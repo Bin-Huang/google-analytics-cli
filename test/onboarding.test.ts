@@ -3,11 +3,12 @@ import { spawnSync } from "node:child_process";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { test } from "node:test";
+import { after, test } from "node:test";
 import { checkCredentialsFile } from "../src/auth.js";
-import { explainError } from "../src/utils.js";
+import { explainError, warnIfNoAccounts } from "../src/utils.js";
 
 const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "ga-cli-test-"));
+after(() => fs.rmSync(tmp, { recursive: true, force: true }));
 
 function writeTmp(name: string, content: string): string {
   const file = path.join(tmp, name);
@@ -63,6 +64,28 @@ test("explainError rewrites the missing credentials error", () => {
   assert.match(msg, /~\/\.config\/google-analytics-cli\/credentials\.json/);
   assert.match(msg, /#setup/);
   assert.equal(explainError("Permission denied"), "Permission denied");
+});
+
+function captureStderr(fn: () => void): string {
+  let out = "";
+  const original = process.stderr.write;
+  process.stderr.write = ((chunk: string) => {
+    out += chunk;
+    return true;
+  }) as typeof process.stderr.write;
+  try {
+    fn();
+  } finally {
+    process.stderr.write = original;
+  }
+  return out;
+}
+
+test("warnIfNoAccounts writes a JSON warning only for an empty list", () => {
+  const warning = JSON.parse(captureStderr(() => warnIfNoAccounts([])));
+  assert.match(warning.warning, /No accounts found/);
+  assert.match(warning.warning, /#step-4-grant-access-in-google-analytics/);
+  assert.equal(captureStderr(() => warnIfNoAccounts([{ account: "accounts/1" }])), "");
 });
 
 test("CLI explains missing credentials", () => {

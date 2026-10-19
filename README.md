@@ -94,9 +94,9 @@ The service account needs a role on each Google Analytics account or property. Y
 4. Click **+** > **Add users**.
 5. Enter the service account email. Copy it from the `client_email` field in your key file, e.g. `my-sa@my-project.iam.gserviceaccount.com`.
 6. Choose a role:
-   - **Viewer** (read-only): can use all read commands, such as `accounts`, `property`, `report`, and `realtime`.
-   - **Editor** or higher: also needed for `change-history`.
-   - **Administrator**: also needed for `access-report`.
+   - **Viewer** (read-only): enough for all commands except `change-history` and `access-report`.
+   - **Editor** or higher: needed for `change-history`.
+   - **Administrator**: needed for `access-report`.
 7. Click **Add**.
 
 A role at the **Account** level applies to all properties under that account. A role at the **Property** level applies to that property only.
@@ -209,13 +209,13 @@ All commands output pretty-printed JSON by default. Use `--format compact` for c
 
 You can pass a property ID as an argument, via `--property`, or set the `GA_PROPERTY_ID` environment variable. Both raw numbers and `properties/` prefixed IDs are accepted (e.g. `123456789` or `properties/123456789`).
 
-To find your property ID, run `google-analytics-cli accounts`. Each entry in `propertySummaries` has a `property` field such as `properties/123456789`. You can also find it in Google Analytics under **Admin > Property settings > Property > Property details**. The property ID is a number. It is not the measurement ID of a web data stream (`G-XXXXXXXXXX`). The CLI rejects values that start with `G-`.
-
-Commands such as `properties` and `change-history` take an account ID instead. The account ID is also a number, e.g. `987654321`. Find it in the `account` field of `accounts` (`accounts/987654321`).
-
 ```bash
 export GA_PROPERTY_ID=123456789
 ```
+
+To find your property ID, run `google-analytics-cli accounts`. Each entry in `propertySummaries` has a `property` field such as `properties/123456789`. You can also find it in Google Analytics under **Admin > Property settings > Property > Property details**. The property ID is a number. It is not the measurement ID of a web data stream (`G-XXXXXXXXXX`). The CLI rejects values that start with `G-`.
+
+Commands such as `properties` and `change-history` take an account ID instead. The account ID is also a number, e.g. `987654321`. Find it in the `account` field of `accounts` (`accounts/987654321`).
 
 ### accounts
 
@@ -504,6 +504,8 @@ Errors are written to stderr as JSON with an `error` field. For Google API error
 ```json
 {"error": "Permission denied", "code": 7}
 ```
+
+Warnings are written to stderr as JSON with a `warning` field. They do not change stdout or the exit code. For example, `accounts` writes a warning when it finds no accounts.
 
 ## Related
 
