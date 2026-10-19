@@ -62,6 +62,7 @@ Alternative: Application Default Credentials with the user's own Google account.
 | 403 `PERMISSION_DENIED` / "does not have sufficient permissions" | No access to this property, or the role is too low. | Grant access (setup step 4). Check the role for `change-history` and `access-report`. Check that the ID is the numeric property ID. |
 | "This app is blocked" during gcloud login | gcloud's own OAuth client cannot request Analytics scopes. | Add `--client-id-file` with the user's own OAuth client. |
 | `invalid_grant` after about 7 days | OAuth app with the **External** audience in **Testing** status. | Run the gcloud login again. |
+| Service account key fails with `16 UNAUTHENTICATED: Request had invalid authentication credentials` | The key or the service account was deleted or disabled. | Create a new key and replace the key file. A new service account also needs setup step 4 again. |
 
 If the user manages multiple GA accounts (e.g. several clients or organizations), run `google-analytics-cli profiles` to list available profiles, then pass `--profile <name>` (e.g. `accounts --profile account-a`) to target a specific one. `--credentials` and `--profile` cannot be used together; `--credentials` overrides `GA_CLI_PROFILE`.
 

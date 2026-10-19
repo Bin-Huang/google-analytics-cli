@@ -73,6 +73,19 @@ export function explainError(message: string): string {
       `Setup guide: ${SETUP_URL}`
     );
   }
+  // Google rejected the credentials. The gRPC clients report an expired gcloud
+  // login as "... failed with error: invalid_grant" and a deleted or disabled
+  // service account key as "16 UNAUTHENTICATED: ...".
+  if (/invalid_grant|^16 UNAUTHENTICATED/.test(message)) {
+    return (
+      `${message.replace(/\.$/, "")}. Google rejected the credentials. ` +
+      "With gcloud Application Default Credentials, the login expired or was revoked: " +
+      "run gcloud auth application-default login again with the same flags. " +
+      "With a service account key, the key or the service account may be deleted or disabled: " +
+      "create a new key. " +
+      "See https://github.com/Bin-Huang/google-analytics-cli#troubleshooting"
+    );
+  }
   return message;
 }
 
