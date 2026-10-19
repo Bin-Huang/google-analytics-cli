@@ -119,7 +119,7 @@ Before you start:
 
 - Install the [gcloud CLI](https://cloud.google.com/sdk/docs/install).
 - In the project from Step 1, configure the [OAuth consent screen](https://console.cloud.google.com/auth/branding). If you are not in a Google Workspace organization, choose the **External** audience.
-- Add your own Google account as a test user on the [Audience](https://console.cloud.google.com/auth/audience) page.
+- With the **External** audience, add your own Google account as a test user on the [Audience](https://console.cloud.google.com/auth/audience) page.
 
 Steps:
 
@@ -147,7 +147,7 @@ Notes:
 - gcloud requires the `cloud-platform` scope. For `change-history`, also add `https://www.googleapis.com/auth/analytics.edit` to `--scopes`.
 - Without `--client-id-file`, gcloud uses its own OAuth client. Google usually blocks that client for the Analytics scopes and shows "This app is blocked".
 - The CLI uses Application Default Credentials only when it finds no key file (see the order in Step 3). Unset `GOOGLE_APPLICATION_CREDENTIALS` and `GA_CLI_PROFILE`, and remove or rename `~/.config/google-analytics-cli/credentials.json` if it exists.
-- While the OAuth app's publishing status is **Testing**, Google expires the refresh token after 7 days ([Google docs](https://developers.google.com/identity/protocols/oauth2)). Run the login command again every 7 days.
+- While the OAuth app uses the **External** audience and its publishing status is **Testing**, Google expires the refresh token after 7 days ([Google docs](https://developers.google.com/identity/protocols/oauth2)). Run the login command again every 7 days.
 - This method is good for local development. For automation, use a service account.
 
 ## Troubleshooting
@@ -162,7 +162,7 @@ Notes:
 | 403 with `SERVICE_DISABLED` or "has not been used in project" | The Admin API or the Data API is not enabled in the project of the credentials (or the quota project for Application Default Credentials). The error message names the API. | Enable the [Admin API](https://console.cloud.google.com/apis/library/analyticsadmin.googleapis.com) or the [Data API](https://console.cloud.google.com/apis/library/analyticsdata.googleapis.com) in that project. Wait a few minutes, then try again. |
 | 403 "User does not have sufficient permissions for this property" (or `PERMISSION_DENIED`) | The credentials have no access to this property, or their role is too low for the command. | Add the account to the property ([Step 4](#step-4-grant-access-in-google-analytics)). `change-history` needs **Editor** or higher. `access-report` needs **Administrator**. Check that you passed the numeric property ID, not a `G-` measurement ID. |
 | Google shows "This app is blocked" during `gcloud auth application-default login` | gcloud's own OAuth client cannot request the Analytics scopes. | Create your own OAuth client and add `--client-id-file` ([Application Default Credentials](#alternative-application-default-credentials)). |
-| Application Default Credentials stop working after 7 days (`invalid_grant`) | The OAuth app is in **Testing** status. Google expires its refresh tokens after 7 days. | Run `gcloud auth application-default login` again with the same flags. |
+| Application Default Credentials stop working after 7 days (`invalid_grant`) | The OAuth app uses the **External** audience and is in **Testing** status. Google expires its refresh tokens after 7 days. | Run `gcloud auth application-default login` again with the same flags. |
 
 ### Add the service account with the Admin API
 

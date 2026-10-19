@@ -48,7 +48,7 @@ Before running any command, verify credentials by running `google-analytics-cli 
 4. In Google Analytics, go to **Admin > Account access management** (or **Property access management**) and add the service account email (`client_email` in the key file). **Viewer** is enough for all commands except `change-history` (needs **Editor** or higher) and `access-report` (needs **Administrator**).
 5. Run `google-analytics-cli accounts`. An empty array `[]` means the access from step 4 is not active yet.
 
-Alternative: Application Default Credentials with the user's own Google account. The user creates a **Desktop app** OAuth client and runs `gcloud auth application-default login --client-id-file=<client_secret.json> --scopes=https://www.googleapis.com/auth/analytics.readonly,https://www.googleapis.com/auth/cloud-platform`. `change-history` also needs the `analytics.edit` scope. While the OAuth app is in **Testing** status, the login expires every 7 days.
+Alternative: Application Default Credentials with the user's own Google account. The user creates a **Desktop app** OAuth client and runs `gcloud auth application-default login --client-id-file=<client_secret.json> --scopes=https://www.googleapis.com/auth/analytics.readonly,https://www.googleapis.com/auth/cloud-platform`. `change-history` also needs the `analytics.edit` scope. While the OAuth app uses the **External** audience and is in **Testing** status, the login expires every 7 days.
 
 ### Troubleshooting
 
@@ -61,7 +61,7 @@ Alternative: Application Default Credentials with the user's own Google account.
 | 403 with `SERVICE_DISABLED` or "has not been used in project" | The Admin API or Data API is not enabled. The error names the API. | Enable that API in the project (setup step 1). |
 | 403 `PERMISSION_DENIED` / "does not have sufficient permissions" | No access to this property, or the role is too low. | Grant access (setup step 4). Check the role for `change-history` and `access-report`. Check that the ID is the numeric property ID. |
 | "This app is blocked" during gcloud login | gcloud's own OAuth client cannot request Analytics scopes. | Add `--client-id-file` with the user's own OAuth client. |
-| `invalid_grant` after about 7 days | OAuth app in **Testing** status. | Run the gcloud login again. |
+| `invalid_grant` after about 7 days | OAuth app with the **External** audience in **Testing** status. | Run the gcloud login again. |
 
 If the user manages multiple GA accounts (e.g. several clients or organizations), run `google-analytics-cli profiles` to list available profiles, then pass `--profile <name>` (e.g. `accounts --profile account-a`) to target a specific one. `--credentials` and `--profile` cannot be used together; `--credentials` overrides `GA_CLI_PROFILE`.
 
