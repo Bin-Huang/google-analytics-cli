@@ -21,7 +21,20 @@ export function registerAdminCommands(program: Command): void {
       const format = cmd.optsWithGlobals().format;
       await run(async () => {
         const client = createAdminClient();
-        return collectAsync(client.listAccountSummariesAsync({}, asyncPagingOptions()));
+        const summaries = await collectAsync(
+          client.listAccountSummariesAsync({}, asyncPagingOptions()),
+        );
+        if (summaries.length === 0) {
+          process.stderr.write(
+            JSON.stringify({
+              warning:
+                "No accounts found. The credentials work, but no Google Analytics account or property grants them access. " +
+                "Add the service account email (client_email in the key file) with the Viewer role, then try again. " +
+                "See https://github.com/Bin-Huang/google-analytics-cli#step-4-grant-access-in-google-analytics",
+            }) + "\n",
+          );
+        }
+        return summaries;
       }, format);
     });
 

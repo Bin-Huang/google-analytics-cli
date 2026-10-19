@@ -91,12 +91,45 @@ function resolveKeyFilename(): string | undefined {
   return undefined;
 }
 
+/**
+ * Fail fast on files that are not service account keys. Without this check, an
+ * OAuth client file makes the Google client retry for about a minute and then
+ * print "key must be a string, a buffer or an object" many times.
+ */
+export function checkCredentialsFile(file: string): void {
+  let raw: string;
+  try {
+    raw = fs.readFileSync(file, "utf8");
+  } catch (err) {
+    const reason = err instanceof Error ? err.message : String(err);
+    throw new Error(`Cannot read credentials file ${file}: ${reason}`);
+  }
+  let json: unknown;
+  try {
+    json = JSON.parse(raw);
+  } catch {
+    throw new Error(
+      `Credentials file ${file} is not valid JSON. Use the JSON key file of a service account.`,
+    );
+  }
+  if (json && typeof json === "object" && ("installed" in json || "web" in json)) {
+    throw new Error(
+      `${file} is an OAuth client file, not a service account key. ` +
+        "Create a JSON key under IAM & Admin > Service Accounts > Keys, " +
+        "or pass this file to `gcloud auth application-default login --client-id-file` " +
+        "(see https://github.com/Bin-Huang/google-analytics-cli#alternative-application-default-credentials).",
+    );
+  }
+}
+
 function getClientOptions() {
   const base = {
     libName: "google-analytics-cli",
     libVersion: version,
   };
   const keyFilename = resolveKeyFilename();
+  const file = keyFilename ?? process.env.GOOGLE_APPLICATION_CREDENTIALS;
+  if (file) checkCredentialsFile(file);
   return keyFilename ? { ...base, keyFilename } : base;
 }
 

@@ -1,11 +1,19 @@
 import { Command } from "commander";
 
+const SETUP_URL = "https://github.com/Bin-Huang/google-analytics-cli#setup";
+
 export function resolvePropertyId(cmd: Command): string {
   const opts = cmd.optsWithGlobals();
   const pid = cmd.args[0] || opts.property;
   if (!pid) {
     errorJson(
       "Missing PROPERTY_ID. Provide it as an argument, via --property, or set GA_PROPERTY_ID.",
+    );
+  }
+  if (/^G-/i.test(String(pid))) {
+    errorJson(
+      `"${pid}" is a measurement ID, not a property ID. Property IDs are numeric (e.g. 123456789). ` +
+        "Run `google-analytics-cli accounts` to list your property IDs, or find it in GA under Admin > Property details.",
     );
   }
   return String(pid).startsWith("properties/") ? pid : `properties/${pid}`;
@@ -39,8 +47,21 @@ interface ApiError extends Error {
   statusDetails?: unknown;
 }
 
+/** Replace error messages that do not tell a new user what to do next. */
+export function explainError(message: string): string {
+  if (message.startsWith("Could not load the default credentials")) {
+    return (
+      "No credentials found. Provide a service account JSON key in one of these ways: " +
+      "pass --credentials <path>, set GOOGLE_APPLICATION_CREDENTIALS=<path>, " +
+      "or save it to ~/.config/google-analytics-cli/credentials.json. " +
+      `Setup guide: ${SETUP_URL}`
+    );
+  }
+  return message;
+}
+
 export function errorJson(message: string, err?: unknown): never {
-  const output: Record<string, unknown> = { error: message };
+  const output: Record<string, unknown> = { error: explainError(message) };
   if (err && typeof err === "object") {
     const apiErr = err as ApiError;
     if (apiErr.code != null) output.code = apiErr.code;
