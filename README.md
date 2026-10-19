@@ -71,15 +71,15 @@ The CLI looks for credentials in this order and uses the first one it finds:
 Choose one of these options:
 
 ```bash
-# Option A: Pass per command
-google-analytics-cli accounts --credentials /path/to/your-key-file.json
+# Option A: Default path (recommended)
+mkdir -p ~/.config/google-analytics-cli
+cp ~/Downloads/your-key-file.json ~/.config/google-analytics-cli/credentials.json
 
 # Option B: Environment variable
 export GOOGLE_APPLICATION_CREDENTIALS="/path/to/your-key-file.json"
 
-# Option C: Default path (recommended)
-mkdir -p ~/.config/google-analytics-cli
-cp ~/Downloads/your-key-file.json ~/.config/google-analytics-cli/credentials.json
+# Option C: Pass per command
+google-analytics-cli accounts --credentials /path/to/your-key-file.json
 ```
 
 `--credentials` and `--profile` cannot be used together; `--credentials` overrides `GA_CLI_PROFILE`.
