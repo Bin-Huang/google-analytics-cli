@@ -163,6 +163,7 @@ Notes:
 | 403 "User does not have sufficient permissions for this property" (or `PERMISSION_DENIED`) | The credentials have no access to this property, or their role is too low for the command. | Add the account to the property ([Step 4](#step-4-grant-access-in-google-analytics)). `change-history` needs **Editor** or higher. `access-report` needs **Administrator**. Check that you passed the numeric property ID, not a `G-` measurement ID. |
 | Google shows "This app is blocked" during `gcloud auth application-default login` | gcloud's own OAuth client cannot request the Analytics scopes. | Create your own OAuth client and add `--client-id-file` ([Application Default Credentials](#alternative-application-default-credentials)). |
 | Application Default Credentials stop working after 7 days (`invalid_grant`) | The OAuth app uses the **External** audience and is in **Testing** status. Google expires its refresh tokens after 7 days. | Run `gcloud auth application-default login` again with the same flags. |
+| A service account key fails with `16 UNAUTHENTICATED: Request had invalid authentication credentials` | The key or the service account was deleted or disabled. | Create a new key ([Step 2](#step-2-create-a-service-account-and-download-a-json-key)) and replace the old key file. If you deleted the service account, create a new one and repeat [Step 4](#step-4-grant-access-in-google-analytics). |
 
 ### Add the service account with the Admin API
 

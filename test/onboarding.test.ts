@@ -55,6 +55,26 @@ test("checkCredentialsFile accepts a service account key", () => {
   assert.doesNotThrow(() => checkCredentialsFile(key));
 });
 
+test("explainError explains rejected credentials from gcloud ADC and service account keys", () => {
+  const cases = [
+    [
+      "400 undefined: Getting metadata from plugin failed with error: invalid_grant",
+      "400 undefined: Getting metadata from plugin failed with error: invalid_grant. Google rejected the credentials.",
+    ],
+    [
+      "16 UNAUTHENTICATED: Request had invalid authentication credentials. Expected OAuth 2 access token.",
+      "16 UNAUTHENTICATED: Request had invalid authentication credentials. Expected OAuth 2 access token. Google rejected the credentials.",
+    ],
+  ];
+  for (const [original, prefix] of cases) {
+    const msg = explainError(original);
+    assert.ok(msg.startsWith(prefix), msg);
+    assert.match(msg, /gcloud auth application-default login/);
+    assert.match(msg, /create a new key/);
+    assert.match(msg, /#troubleshooting$/);
+  }
+});
+
 test("explainError rewrites the missing credentials error", () => {
   const msg = explainError(
     "Could not load the default credentials. Browse to https://cloud.google.com/docs/authentication/getting-started for more information.",
