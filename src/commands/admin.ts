@@ -11,6 +11,7 @@ import {
   validateDateRanges,
   validateFilter,
   validateOrderBy,
+  warnIfNoAccounts,
 } from "../utils.js";
 
 export function registerAdminCommands(program: Command): void {
@@ -21,7 +22,11 @@ export function registerAdminCommands(program: Command): void {
       const format = cmd.optsWithGlobals().format;
       await run(async () => {
         const client = createAdminClient();
-        return collectAsync(client.listAccountSummariesAsync({}, asyncPagingOptions()));
+        const summaries = await collectAsync(
+          client.listAccountSummariesAsync({}, asyncPagingOptions()),
+        );
+        warnIfNoAccounts(summaries);
+        return summaries;
       }, format);
     });
 

@@ -10,7 +10,7 @@ description: >
 
 # Google Analytics CLI Skill
 
-You have access to `google-analytics-cli`, a read-only CLI for the GA4 API. Use it to run reports, monitor realtime activity, and explore account/property structure.
+You have access to `google-analytics-cli`, a CLI for the GA4 Admin API and Data API. Most commands only read data. `audience-export-create` creates an audience export in the property. Use it to run reports, monitor realtime activity, and explore account/property structure.
 
 ## Quick start
 
@@ -38,7 +38,30 @@ The CLI uses Google service account credentials. Credentials are resolved in thi
 4. `~/.config/google-analytics-cli/credentials.json` (auto-detected)
 5. gcloud Application Default Credentials
 
-Before running any command, verify credentials by running `google-analytics-cli accounts`. If it fails, ask the user to set up a service account and grant it Viewer access in Google Analytics.
+Before running any command, verify credentials by running `google-analytics-cli accounts`. If it fails or prints `[]`, use the setup steps and the troubleshooting table below to tell the user what to do. You cannot do the setup steps for the user. Full guide: https://github.com/Bin-Huang/google-analytics-cli#setup
+
+### Setup (summary)
+
+1. In a Google Cloud project, enable the **Google Analytics Admin API** (used by `accounts` and other admin commands) and the **Google Analytics Data API** (used by `report` and other reporting commands).
+2. Create a service account and download a JSON key. If the organization policy `constraints/iam.managed.disableServiceAccountKeyCreation` blocks key creation (the default for organizations created on or after May 3, 2024), the organization admin must override it for the project, or the user must use Application Default Credentials.
+3. Place the key: `--credentials <path>`, `GOOGLE_APPLICATION_CREDENTIALS=<path>`, or `~/.config/google-analytics-cli/credentials.json`.
+4. In Google Analytics, go to **Admin > Account access management** (or **Property access management**) and add the service account email (`client_email` in the key file). **Viewer** is enough for all commands except `change-history` (needs **Editor** or higher) and `access-report` (needs **Administrator**).
+5. Run `google-analytics-cli accounts`. An empty array `[]` means the access from step 4 is not active yet.
+
+Alternative: Application Default Credentials with the user's own Google account. The user creates a **Desktop app** OAuth client and runs `gcloud auth application-default login --client-id-file=<client_secret.json> --scopes=https://www.googleapis.com/auth/analytics.readonly,https://www.googleapis.com/auth/cloud-platform`. `change-history` also needs the `analytics.edit` scope. While the OAuth app uses the **External** audience and is in **Testing** status, the login expires every 7 days.
+
+### Troubleshooting
+
+| Symptom | Cause | Fix |
+|---------|-------|-----|
+| `accounts` prints `[]` (stderr has a `warning`) | Credentials work, but no account or property grants them access. | Add the `client_email` in Google Analytics (setup step 4). New grants can take a while to apply. |
+| GA shows "Email not found" for a correct `client_email` | Known Google-side delay for new service accounts: several hours to several weeks. | Wait, or use Application Default Credentials. Some users report that the Admin API `accessBindings` method can add the service account. |
+| `No credentials found` | No key file and no Application Default Credentials. | Do setup step 3. |
+| `... is an OAuth client file, not a service account key` | The file has an `installed` or `web` field. | Use a service account key, or use the file with `gcloud --client-id-file`. |
+| 403 with `SERVICE_DISABLED` or "has not been used in project" | The Admin API or Data API is not enabled. The error names the API. | Enable that API in the project (setup step 1). |
+| 403 `PERMISSION_DENIED` / "does not have sufficient permissions" | No access to this property, or the role is too low. | Grant access (setup step 4). Check the role for `change-history` and `access-report`. Check that the ID is the numeric property ID. |
+| "This app is blocked" during gcloud login | gcloud's own OAuth client cannot request Analytics scopes. | Add `--client-id-file` with the user's own OAuth client. |
+| `invalid_grant` after about 7 days | OAuth app with the **External** audience in **Testing** status. | Run the gcloud login again. |
 
 If the user manages multiple GA accounts (e.g. several clients or organizations), run `google-analytics-cli profiles` to list available profiles, then pass `--profile <name>` (e.g. `accounts --profile account-a`) to target a specific one. `--credentials` and `--profile` cannot be used together; `--credentials` overrides `GA_CLI_PROFILE`.
 
@@ -51,6 +74,8 @@ Most commands require a GA4 property ID. It can be provided as:
 - The `GA_PROPERTY_ID` env var: `export GA_PROPERTY_ID=123456789`
 
 Both raw numbers (`123456789`) and prefixed format (`properties/123456789`) are accepted.
+
+To find the property ID, run `google-analytics-cli accounts` and read the `property` field in `propertySummaries`. The property ID is not the `G-XXXXXXXXXX` measurement ID. The CLI rejects values that start with `G-`. Account IDs (for `properties` and `change-history`) are in the `account` field.
 
 ## Output format
 
@@ -99,7 +124,7 @@ google-analytics-cli profiles
 
 ### Change history
 
-Search change history events for an account:
+Search change history events for an account. Requires the **Editor** or **Administrator** role (and the `analytics.edit` scope with Application Default Credentials):
 
 ```bash
 google-analytics-cli change-history 987654321
@@ -113,18 +138,18 @@ google-analytics-cli change-history 987654321 --action '["CREATED","UPDATED"]'
 
 ### Access report
 
-Run an access report to see who accessed the property:
+Run an access report to see who accessed the property. Requires the **Administrator** role:
 
 ```bash
 google-analytics-cli access-report 123456789 \
-  --dimensions "accessorEmail,accessMechanism" \
-  --metrics "accessCount" \
+  --dimensions "userEmail,accessedPropertyName" \
+  --metrics "dataApiQuotaPropertyTokensConsumed" \
   --date-ranges '[{"startDate": "30daysAgo", "endDate": "yesterday"}]'
 ```
 
 Options: `--dimension-filter`, `--metric-filter`, `--order-by`, `--limit`, `--offset`, `--time-zone`, `--return-entity-quota`, `--include-all-users`, `--expand-groups`.
 
-Note: Access report uses `dimensionName`/`metricName` (not `name`) internally and `entity` (not `property`).
+Note: Access report uses `dimensionName`/`metricName` (not `name`) internally and `entity` (not `property`). The dimensions `accessMechanism` and `epochTimeMicros` and the metric `accessCount` work only on Google Analytics 360 properties.
 
 ## Running reports
 
@@ -586,7 +611,9 @@ google-analytics-cli realtime 123456789 \
 
 ### Error handling
 
-- **Permission denied** -- the service account needs Viewer access in Google Analytics
+- **Empty `accounts` (`[]`)** -- the credentials work, but no account or property grants them access. See the troubleshooting table in Authentication.
+- **403 `SERVICE_DISABLED` / "has not been used in project"** -- the Admin API or Data API is not enabled in the Google Cloud project
+- **403 permission denied** -- the credentials have no access to the property, or the role is too low (`change-history` needs Editor, `access-report` needs Administrator)
 - **Incompatible dimensions/metrics** -- use `check-compatibility` to test, reduce dimensions or try different combinations
 - **Empty results** -- check property ID, date range, and whether data exists for those dimensions
 - **Quota exceeded** -- use `--return-property-quota` to check usage; reduce request frequency or complexity

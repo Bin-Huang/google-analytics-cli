@@ -1,11 +1,19 @@
 import { Command } from "commander";
 
+const SETUP_URL = "https://github.com/Bin-Huang/google-analytics-cli#setup";
+
 export function resolvePropertyId(cmd: Command): string {
   const opts = cmd.optsWithGlobals();
   const pid = cmd.args[0] || opts.property;
   if (!pid) {
     errorJson(
       "Missing PROPERTY_ID. Provide it as an argument, via --property, or set GA_PROPERTY_ID.",
+    );
+  }
+  if (/^G-/i.test(String(pid))) {
+    errorJson(
+      `"${pid}" is a measurement ID, not a property ID. Property IDs are numeric (e.g. 123456789). ` +
+        "Run `google-analytics-cli accounts` to list your property IDs, or find it in GA under Admin > Property details.",
     );
   }
   return String(pid).startsWith("properties/") ? pid : `properties/${pid}`;
@@ -28,6 +36,22 @@ export function resolveAccountId(id: string): string {
   return id.startsWith("accounts/") ? id : `accounts/${id}`;
 }
 
+/**
+ * An empty account list means the credentials work but have no access yet.
+ * stdout stays `[]` and the exit code stays 0, so only stderr gets a hint.
+ */
+export function warnIfNoAccounts(summaries: unknown[]): void {
+  if (summaries.length > 0) return;
+  process.stderr.write(
+    JSON.stringify({
+      warning:
+        "No accounts found. The credentials work, but no Google Analytics account or property grants them access yet. " +
+        "Add the service account email (client_email in the key file) with the Viewer role, or wait if you added it recently. " +
+        "See https://github.com/Bin-Huang/google-analytics-cli#step-4-grant-access-in-google-analytics",
+    }) + "\n",
+  );
+}
+
 export function outputJson(data: unknown, format: string): void {
   const indent = format === "json" ? 2 : undefined;
   process.stdout.write(JSON.stringify(data ?? null, null, indent) + "\n");
@@ -39,8 +63,21 @@ interface ApiError extends Error {
   statusDetails?: unknown;
 }
 
+/** Replace error messages that do not tell a new user what to do next. */
+export function explainError(message: string): string {
+  if (message.startsWith("Could not load the default credentials")) {
+    return (
+      "No credentials found. Provide a service account JSON key in one of these ways: " +
+      "pass --credentials <path>, set GOOGLE_APPLICATION_CREDENTIALS=<path>, " +
+      "or save it to ~/.config/google-analytics-cli/credentials.json. " +
+      `Setup guide: ${SETUP_URL}`
+    );
+  }
+  return message;
+}
+
 export function errorJson(message: string, err?: unknown): never {
-  const output: Record<string, unknown> = { error: message };
+  const output: Record<string, unknown> = { error: explainError(message) };
   if (err && typeof err === "object") {
     const apiErr = err as ApiError;
     if (apiErr.code != null) output.code = apiErr.code;
